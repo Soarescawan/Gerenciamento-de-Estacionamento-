@@ -1,0 +1,13 @@
+
+---- Dados do Veiculo ----
+ID da Vaga: 1
+Placa: wey 2345
+Modelo: siena
+Cor: vermelho
+Tipo de Vaga: carr
+Hora Entrada: 16:33
+Data do Pagamento: 13/01/2026
+Tempo Permanencia: Diaria
+Forma Pagamento: Pix
+Valor Pago: R$50,00
+--------------------------
