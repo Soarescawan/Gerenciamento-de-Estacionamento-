@@ -1,8 +1,0 @@
-
----- Dados do Condutor ----
-Nome do Condutor: cawan soares
-Telefone: 51995106387
-Email: soarescawab
-Endereço: av
-Cpf: 12345678900
---------------------------
