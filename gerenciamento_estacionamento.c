@@ -18,6 +18,7 @@ typedef struct Usuario{
     char *telefone;
     char *email;
     char *endereco;
+    int *veiculos_cadastrados;;
     
     
     struct Usuario *prox1;
@@ -66,7 +67,7 @@ void limpar_buffer();
 //Menu do Sistema//
 void menu();
 
-int verificar_cpf(Usuario *lista, char *cpf);
+int verificar_cpf(Usuario *lista1, char *cpf);
 
 //Busca horario direto do sistema//
 char *hora_atual_sistema();
@@ -78,7 +79,7 @@ char *data_do_sistema();
 char *tempo_permanencia_sistema(); 
 
 //Seleciona a forma de pagamento//
-char *dados_de_pagamento(Veiculo *v);
+char *dados_de_pagamento();
 
 //inserir Veiculos na Lista encadeada//
 Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1);
@@ -92,6 +93,7 @@ Veiculo* remover_veiculo(Veiculo *lista, char *placa);
 void reescrever_arquivo_prorpietario(Usuario *lista1);
 
 Usuario *remover_Proprietario(Usuario *lista1, char *cpf);
+
 void dados_do_condutor(Usuario *proprietario);
 
 int main() {
@@ -204,8 +206,8 @@ int main() {
 }
 
     
-char *dados_de_pagamento(Veiculo *v) {
-    char *metodo = NULL;
+char *dados_de_pagamento() {
+    char *metodo_pagamento = NULL;
     int opcao;
 
     printf("\nEscolha a forma de pagamento:\n");
@@ -220,31 +222,31 @@ char *dados_de_pagamento(Veiculo *v) {
 
     switch (opcao) {
         case 1:
-            metodo = malloc(9);
-            strcpy(metodo, "Dinheiro");
-            
+           metodo_pagamento = malloc(9);
+            strcpy(metodo_pagamento, "Dinheiro");
+
             break;
         case 2:
-            metodo = malloc(18);
-            strcpy(metodo, "Credito");
+            metodo_pagamento = malloc(18);
+            strcpy(metodo_pagamento, "Credito");
             break;
         case 3:
-            metodo = malloc(16);
-            strcpy(metodo, "Debito");
+            metodo_pagamento = malloc(16);
+            strcpy(metodo_pagamento, "Debito");
             break;
         case 4:
-            metodo = malloc(4);
-            strcpy(metodo, "Pix");
+            metodo_pagamento = malloc(4);
+            strcpy(metodo_pagamento, "Pix");
             break;
         default:
             printf("Opcao invalida. Definindo como 'Nao especificado'.\n");
-            metodo = malloc(18);
-            strcpy(metodo, "Nao especificado");
+            printf("\nTente novamente.\n");
+            dados_de_pagamento();
             break;
     }
    
 
-    return metodo;
+    return metodo_pagamento;
 }
 
 
@@ -258,6 +260,13 @@ void buscar_veiculo(Veiculo *lista, char *placa) {
                  printf("\nModelo: %s", lista->modelo); 
                  printf("\nCor: %s", lista->cor); 
                  printf("\nEntrada: %s", lista->hora_entrada);
+                 printf("\nData de Pagamento: %s", lista->Data_de_pagamento);
+                 printf("\nTempo de Permanencia: %s", lista->tempo_permanencia);
+                 printf("\nForma de Pagamento: %s", lista->forma_pagamento);
+                 printf("\nValor pago: %s ", lista->valor_pago);
+                 printf("\nTipo de Vaga: %s", lista->tipo_vaga);
+                 printf("\nProprietario: %s", lista->condutor->nome);// descobri que podemos acessar os campos da estrutura Usuario atraves do ponteiro condutor que esta dentro da estrutura veiculo//
+                 printf("\n-------------------------------\n");
                  
 
 
@@ -311,28 +320,35 @@ Veiculo* remover_veiculo(Veiculo *lista, char *placa) {
 }
 
 Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
+
     //novo é um ponteiro que aponta para o novo veiculo que sera adicionado na lista encadeada//
+
         Veiculo *novo = malloc(sizeof(Veiculo));
-        Usuario *dono = NULL;// ponteiro auxiliar que vai armazenar o endereco de memoria  do proprietario do veiculo//
+
+        Usuario *dono = malloc(sizeof(Usuario));// ponteiro auxiliar que vai armazenar o endereco de memoria  do proprietario do veiculo//
 
         char *cpf = malloc(12);// aloca memoria para o cpf que o usuario vai digitar//
+
         printf("\nInsira o cpf do condutor: ");
         cpf = ler_string();
 
+     dono->veiculos_cadastrados++;
+     dono = NULL;
 
-    dono = buscar_proprietario(lista1,cpf);
+     dono = buscar_proprietario(lista1,cpf);
 
+     
     if(dono == NULL){
-        printf("\nEste Proprietario nao existe");
+        printf("\nEste Proprietario nao existe\n");
 
         free(cpf);
         free(novo);
         return lista;
     }
 
-        printf("\nProprietario encontrado");
-
+        
         novo->condutor = dono;
+       
 
     
         free(cpf);
@@ -376,11 +392,26 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
         
 
         do{
+            int vaga_valida ;
             printf("\nvaga do Veiculo: ");
             novo->vaga_do_veiculo = ler_string();
+
+            if(novo->vaga_do_veiculo == NULL){
+                printf("\nErro ao ler vaga do veiculo.\n");
+                free(novo->vaga_do_veiculo);
+                continue;
+            }
+
+            vaga_valida = Id_existe(lista, novo->vaga_do_veiculo);
+            if(vaga_valida == 1){
+                free(novo->vaga_do_veiculo);
+                   printf("\nErro:  Vaga do veiculo já esta em uso.\n");
+                   printf("\nPor favor, insira uma vaga diferente.\n");
+                continue;
+            }
         
 
-        }while(Id_existe(lista, novo->vaga_do_veiculo));
+        }while(1);
 
 
             do{
@@ -409,7 +440,7 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
 
 
         
-            printf("\nPara sabaer o valor a pagar, escolha o tempo de permanencia:\n");
+            
             novo->valor_pago = tempo_permanencia_sistema();
         
 
@@ -441,7 +472,7 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
             
 
             printf("\nForma de Pagamento:\n ");
-            novo->forma_pagamento = dados_de_pagamento(novo);
+            novo->forma_pagamento = dados_de_pagamento(novo->forma_pagamento);
         
         
         
@@ -456,7 +487,7 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
             return lista;
         }
 
-    void listar_veiculos(Veiculo *lista,Usuario *lista1) {
+void listar_veiculos(Veiculo *lista,Usuario *lista1) {
 
         if (lista == NULL) {
             printf("\nNenhum veiculo cadastrado.\n");
@@ -575,7 +606,7 @@ char *data_do_sistema() {
     // essa função é igual a da hora mudando somente a saida
     time_t agora;
     struct tm *tempo;
-    char *data = malloc(11); // Dia/Mes/Ano + '\0' nao esquece que o /0 é o que indica uma string em C//
+    char *data = malloc(20); // Dia/Mes/Ano + '\0' nao esquece que o /0 é o que indica uma string em C//
 
     time(&agora);
     tempo = localtime(&agora);
@@ -590,7 +621,7 @@ char *hora_atual_sistema() {
     // essa funcao pega a hora do sistema e retorna uma string com o formato HH:MM //
     time_t agora;// tipo de dado que armazena o tempo em segundos desde 1 de janeiro de 1970 cara isso é tipo um long long int é muito grande//
     struct tm *tempo;// estrutura que armazena a data e hora local do proprio pc ja vem na função time//
-    char *hora = malloc(6); // HH:MM + '\0' aqui ja aloca direto pois sabemos o que vamos usar
+    char *hora = malloc(20); // HH:MM + '\0' aqui ja aloca direto pois sabemos o que vamos usar
     
 
     time(&agora);// função que pega o tempo atual do sistema e armazena na variavel agora//
@@ -606,8 +637,7 @@ int Id_existe(Veiculo *lista, char *id_vaga) {
     Veiculo *atual = lista;//atual ponteiro auxiliar que percorrem a lista//
     while (atual != NULL) {
         if (strcmp(atual->vaga_do_veiculo, id_vaga) == 0) { //compara o id da vaga do veiculo atual com o id que o usuario quer cadastrar//
-             printf("\nErro:  Vaga do veiculo já esta em uso.\n");
-             printf("\nPor favor, insira um ID diferente.\n");
+        
             return 1; // ID existe
         }
         atual = atual->prox;
@@ -647,13 +677,13 @@ void reescrever_arquivo_veiculos(Veiculo *lista) {
 
 char *ler_string() {
     char memoria[256];// criei um buffer temporario para ler a entrada do usuario, nao tem por que criar uma alocação dinamica pois o buffer é excluido apos o fim da função//
-    char *palavra = malloc(strlen(memoria) + 1);// aloca memoria dinamicamente para a string final//
-
+    
     if (fgets(memoria, sizeof(memoria), stdin) == NULL){//se o usuario nao digitar nada retorna NULL//
         return NULL;}
-
-
-    memoria[strcspn(memoria, "\n")] = '\0'; // remove o ENTER e coloca o caractere de fim de string '\0'//
+        
+        
+        memoria[strcspn(memoria, "\n")] = '\0'; // remove o ENTER e coloca o caractere de fim de string '\0'//
+        char *palavra = malloc(strlen(memoria) + 1);// aloca memoria dinamicamente para a string final//
      // a função strcspn retorna o índice do primeiro caractere encontrado na segunda string que está presente na primeira string. Nesse caso, ela encontra a posição do caractere de nova linha '\n' na string buffer.//
     if (palavra == NULL)
         return NULL;
@@ -673,104 +703,81 @@ void limpar_buffer() {
 }
 
 
-Usuario *cadastrarCondutor(Usuario *lista){
+Usuario *cadastrarCondutor(Usuario *lista1){
 
-            Usuario *novo = malloc(sizeof(Usuario)); // Alocação dinamica de memoria para o novo proprietario(ou nó da lista)//
-            
-            printf("\nInsira o nome do Condutor:  ");
-            novo->nome = ler_string();
-            //novo é um ponteiro que aponta para a lista usuarios e o nome é um campo da estrutura//
-
-            
-            do {
-                //Nessa parte o codigo faz uma verificação para garantir que o CPF tenha exatamente 11 números//
-                printf("\nInsira o CPF do Proprietario: ");
-                novo->cpf = ler_string();
-                int verificar = verificar_cpf(lista, novo->cpf);
-
-
-                // Verifica se o CPF já está cadastrado reorna 1 se ja estiver e 0 se ainda nao esxistir//
-                            if(verificar == 1){
-                                printf("Erro: CPF já cadastrado.\n");
-                                printf("Por favor, insira um CPF diferente ou verifique em buscar proprietario.\n");
-                                
-                                int opcao;
-                                printf("Deseja tentar novamente? (1 - Sim / 2 - Nao): ");
-                                scanf("%d", &opcao);
-                                limpar_buffer();    
-                                        switch(opcao){
-                                            case 1:
-                                            printf("Tente novamente.\n");
-                                            free(novo->cpf);
-                                                break;
-                                            case 2:
-                                                free(novo->cpf);
-                                                free(novo);
-                                                return lista;
-                                            default:
-                                                printf("Opcao invalida. Cancelando cadastro.\n");
-                                                free(novo->cpf);
-                                                free(novo);
-                                                return lista;
-                                        }
-                                free(novo->cpf);
-                                continue;// descobri que o continue faz o laço voltar pro inicio do loop//
-                            }
-
-                if(verificar == 0){
-                    if (strlen(novo->cpf) != 11 || novo->cpf == NULL ){
-                        printf("Erro: CPF deve conter exatamente 11 números.\n");
-
-                    if(novo->cpf != NULL)
-                    free(novo->cpf);
-                    
-                    }
-                }
-            } while (strlen(novo->cpf) != 11 || novo->cpf == NULL);
-
-
-
-            do{
-                printf("\nInsira o numero do telefone: ");
-                    novo->telefone =ler_string();
-
-                    if(strlen(novo->telefone )!= 11|| novo->telefone == NULL){
-                    printf("Erro: Celular deve conter exatamente 9 números + 2 numeros do DDD.\n");
-
-                    if(novo->telefone != NULL)
-                            free(novo->telefone);
-
-                        }
-                        
-                        
-                    }while(strlen(novo->telefone) !=11 || novo->telefone == NULL );
-                    
+     Usuario *novo = malloc(sizeof(Usuario)); // Alocação dinamica de memoria para o novo proprietario(ou nó da lista)//
                 
-                printf("\nInsira seu email: ");
-                novo->email = ler_string();
+     int contador = 0;
+     int chances =3;
+     printf("\nInsira o nome do Condutor:  ");
+     novo->nome = ler_string();
+     //novo é um ponteiro que aponta para a lista usuarios e o nome é um campo da estrutura//
+        do {
+        printf("\nInsira o CPF do Proprietario: ");
+        novo->cpf = ler_string();
 
-                printf("\nInsira seu Endereço: ");
-                novo->endereco = ler_string();
-
-                dados_do_condutor(novo);
-
-
-
-
-            novo->prox1 = lista;
-
-            return novo;
-
-
+        if(contador == 2){
+            printf("\nNumero maximo de tentativas atingido. Retornando ao menu principal.\n");
+            free(novo->cpf);
+            free(novo);
+            return lista1;
         }
 
+        if (novo->cpf == NULL) {
+            printf("Erro ao ler CPF.\n");
+            continue;
+        }
 
+        if (strlen(novo->cpf) != 11) {
+            printf("Erro: CPF deve conter exatamente 11 numeros.\n");
+            free(novo->cpf);
+            novo->cpf = NULL;
+            continue;
+        }
+        
+        if (verificar_cpf(lista1, novo->cpf)) {
+            printf("Erro: CPF ja cadastrado \n");
+            printf("Voce tera %d chances para digitar um CPF valido.\n",chances -1);
+            free(novo->cpf);
+            novo->cpf = NULL;
+            chances--;
+            contador++;
+            continue;
+        }
+        
+        break; // CPF valido e unico
+
+    } while (1);
+
+    printf("\nInsira o telefone do Condutor: ");
+        novo->telefone = ler_string();
+
+                
+               
+                    
+    printf("\nInsira seu email: ");
+        novo->email = ler_string();
+
+    printf("\nInsira seu Endereço: ");
+        novo->endereco = ler_string();
+
+     dados_do_condutor(novo);
+
+
+
+
+    novo->prox1 = lista1;
+
+     return novo;
+
+
+}
 
         
 
     void menu() {
     
-    printf(" \033[33m ==== Gerenciamento de Estacionamento ====\n");//Arthur coloquei essa cor amarela pra ficar mais bonito /033[0m pra cancelar ela dentro do printf//
+    printf(" \033[32m ==== Gerenciamento de Estacionamento ====\n");//Arthur coloquei essa cor amarela pra ficar mais bonito /033[0m pra cancelar ela dentro do printf//
     printf("1 - Cadastrar Condutor\n");
     printf("2 - Cadastrar Veiculo\n");
     printf("3 - Remover Veiculo\n");
@@ -806,17 +813,23 @@ void dados_do_condutor(Usuario *proprietario) {
 
 
 Usuario *buscar_proprietario(Usuario *lista1, char *cpf) { 
-
+ 
 
     //lembrando se quer procurar um usuario vc deve passar tambem o ponteiro que inicia a lista encadeadan na funcao//
 
         while (lista1 != NULL) { 
             if (strcmp(lista1->cpf, cpf) == 0 && lista1 != NULL) { // faz um teste comparando o cpf do proprietario com o cpf que o usuario quer buscar//
                  printf("\n--- Proprietario Encontrado ---\n"); 
-                     printf( "\n---- Dados do Condutor ----\n");
-                     printf( "\nNome do Condutor: %s\n", lista1->nome);
+                     printf( "---- Dados do Condutor ----\n");
+                     printf( "Nome do Condutor: %s\n", lista1->nome);
+                     printf( "Telefone: %s\n", lista1->telefone);
+                     printf( "Email: %s\n", lista1->email);
+                     printf( "Endereço: %s\n", lista1->endereco);
+                     printf( "Cpf: %s\n", lista1->cpf);
+                     printf( "Veiculos Cadastrados: %ls\n", lista1->veiculos_cadastrados);
+                     printf( "--------------------------\n");
                     
-                
+              
 
 
                  return lista1;//retorna o no encontrado//
@@ -828,12 +841,12 @@ Usuario *buscar_proprietario(Usuario *lista1, char *cpf) {
 
                  printf("\nProprietario nao encontrado.\n"); 
                  return NULL;
-    }
+ }
 
 
 
 
-    void reescrever_arquivo_prorpietario(Usuario *lista1) {
+void reescrever_arquivo_prorpietario(Usuario *lista1) {
             //Pra voce entender essa função ela apaga o arquivo antigo e cria um novo com os dados vazios isso so reescreve //
         
         FILE *file = fopen("Cadastro_de_usuario.txt", "w");
@@ -894,9 +907,9 @@ Usuario *buscar_proprietario(Usuario *lista1, char *cpf) {
     return lista1;
 }
 
- 
-int verificar_cpf(Usuario *lista, char *cpf) {
-    Usuario *atual = lista;//aponta pro endereço do primeiro usuario da lista//
+
+int verificar_cpf(Usuario *lista1, char *cpf) {
+    Usuario *atual = lista1;//aponta pro endereço do primeiro usuario da lista//
 
     // caso nao entender me pergunte//
 
@@ -908,3 +921,21 @@ int verificar_cpf(Usuario *lista, char *cpf) {
     }
     return 0; // cpf não existe
 }
+
+/*Dificuldades existentes cawan
+
+pensar em como um estacionamento funciona na vida real
+umas da maxima difuculdades foi a data e hora que vem direto do sistema
+conseguir fazer a lista encadeada funcionar corretamente
+integrar duas listas encadeadas (veiculos e proprietarios)
+por que integrar duas listas encadeadas? porque um veiculo tem um proprietario e um proprietario pode ter varios veiculos
+gerenciar a memoria dinamica corretamente para evitar vazamentos
+tratar buffers
+gerenciar o codigo grande 
+trabalhar usando ponteiros para estruturas
+
+conforme for ajustado eu vou atualizando aqui
+
+
+
+*/
