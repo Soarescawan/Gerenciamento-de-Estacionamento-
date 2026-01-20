@@ -6,19 +6,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <locale.h>// Usamos para colocar acento nas palavras em portugues pois o linux mint tem problema com acento//
-#include <time.h> // Usamos função para buscar hora e data do sistema 
+#include <locale.h>
+#include <time.h> 
 
 
 
-// Lista encadeada para Proprietario dos veiculos//
+
 typedef struct Usuario{
     char *nome;
     char *cpf;
     char *telefone;
     char *email;
     char *endereco;
-    int *veiculos_cadastrados;;
+    int veiculos_cadastrados;// essa parte que to implemnentando pra contar quantos veiculos o proprietario tem cadastrado//
     
     
     struct Usuario *prox1;
@@ -47,6 +47,10 @@ Usuario *buscar_proprietario(Usuario *lista1, char *cpf);
 
 Usuario *cadastrarCondutor(Usuario *lista);
 //busca veiculo pela placa, ponteiro percorre na lista pra achar a placa
+
+void somar_veiculos(Usuario *lista1, char *cpf);
+
+
 void buscar_veiculo(Veiculo *lista, char *placa);
 
 //função criada para ler umas string ja com a alocação de memoria propria pra ela
@@ -323,31 +327,33 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
 
     //novo é um ponteiro que aponta para o novo veiculo que sera adicionado na lista encadeada//
 
-        Veiculo *novo = malloc(sizeof(Veiculo));
-
-        Usuario *dono = malloc(sizeof(Usuario));// ponteiro auxiliar que vai armazenar o endereco de memoria  do proprietario do veiculo//
+    Veiculo *novo = malloc(sizeof(Veiculo));
+    
+         
 
         char *cpf = malloc(12);// aloca memoria para o cpf que o usuario vai digitar//
 
         printf("\nInsira o cpf do condutor: ");
         cpf = ler_string();
 
-     dono->veiculos_cadastrados++;
-     dono = NULL;
-
-     dono = buscar_proprietario(lista1,cpf);
+        Usuario *dono = buscar_proprietario(lista1,cpf);
+        
+        
 
      
-    if(dono == NULL){
-        printf("\nEste Proprietario nao existe\n");
-
-        free(cpf);
-        free(novo);
-        return lista;
-    }
-
+        if(dono == NULL){
+            printf("\nEste Proprietario nao existe\n");
+            
+            free(cpf);
+            free(novo);
+            return lista;
+        }
         
+
+        somar_veiculos(lista1,cpf);
         novo->condutor = dono;
+
+      
        
 
     
@@ -403,11 +409,15 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
             }
 
             vaga_valida = Id_existe(lista, novo->vaga_do_veiculo);
+
             if(vaga_valida == 1){
                 free(novo->vaga_do_veiculo);
                    printf("\nErro:  Vaga do veiculo já esta em uso.\n");
                    printf("\nPor favor, insira uma vaga diferente.\n");
                 continue;
+            }else{
+                printf("\nVaga do veiculo cadastrada com sucesso.\n");
+                break;
             }
         
 
@@ -415,7 +425,7 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
 
 
             do{
-                printf("\nPlaca: ");
+                                 printf("\nPlaca: ");
                     novo->placa = ler_string();
 
                 if(strlen(novo->placa) < 7 || strlen(novo->placa) > 8 || novo->placa == NULL ){
@@ -635,12 +645,14 @@ char *hora_atual_sistema() {
 int Id_existe(Veiculo *lista, char *id_vaga) {
 
     Veiculo *atual = lista;//atual ponteiro auxiliar que percorrem a lista//
+
     while (atual != NULL) {
         if (strcmp(atual->vaga_do_veiculo, id_vaga) == 0) { //compara o id da vaga do veiculo atual com o id que o usuario quer cadastrar//
         
             return 1; // ID existe
         }
         atual = atual->prox;
+
     }
     return 0; // ID não existe
 }
@@ -706,8 +718,10 @@ void limpar_buffer() {
 Usuario *cadastrarCondutor(Usuario *lista1){
 
      Usuario *novo = malloc(sizeof(Usuario)); // Alocação dinamica de memoria para o novo proprietario(ou nó da lista)//
-                
-     int contador = 0;
+
+     novo->veiculos_cadastrados = 0; // inicializa o contador de veiculos cadastrados para o novo proprietario//
+        int contador =0;
+
      int chances =3;
      printf("\nInsira o nome do Condutor:  ");
      novo->nome = ler_string();
@@ -775,7 +789,7 @@ Usuario *cadastrarCondutor(Usuario *lista1){
 
         
 
-    void menu() {
+void menu() {
     
     printf(" \033[32m ==== Gerenciamento de Estacionamento ====\n");//Arthur coloquei essa cor amarela pra ficar mais bonito /033[0m pra cancelar ela dentro do printf//
     printf("1 - Cadastrar Condutor\n");
@@ -826,7 +840,7 @@ Usuario *buscar_proprietario(Usuario *lista1, char *cpf) {
                      printf( "Email: %s\n", lista1->email);
                      printf( "Endereço: %s\n", lista1->endereco);
                      printf( "Cpf: %s\n", lista1->cpf);
-                     printf( "Veiculos Cadastrados: %ls\n", lista1->veiculos_cadastrados);
+                     printf( "Veiculos Cadastrados: %d\n", lista1->veiculos_cadastrados);
                      printf( "--------------------------\n");
                     
               
@@ -841,7 +855,8 @@ Usuario *buscar_proprietario(Usuario *lista1, char *cpf) {
 
                  printf("\nProprietario nao encontrado.\n"); 
                  return NULL;
- }
+}
+
 
 
 
@@ -922,6 +937,17 @@ int verificar_cpf(Usuario *lista1, char *cpf) {
     return 0; // cpf não existe
 }
 
+void somar_veiculos(Usuario *lista1, char *cpf) {
+    while (lista1 != NULL) {
+        if (strcmp(lista1->cpf, cpf) == 0) {
+            lista1->veiculos_cadastrados++;
+            return;
+        }
+        lista1 = lista1->prox1;
+    }
+}
+
+   
 /*Dificuldades existentes cawan
 
 pensar em como um estacionamento funciona na vida real
