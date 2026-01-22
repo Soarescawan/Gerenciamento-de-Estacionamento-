@@ -217,44 +217,40 @@ int main() {
 char *forma_pagamento() {
     char *metodo_pagamento = NULL;
     int opcao;
+    while(1){
+        printf("\nEscolha a forma de pagamento:\n");
+        printf("1 - Dinheiro\n");
+        printf("2 - Cartao de Credito\n");
+        printf("3 - Cartao de Debito\n");
+        printf("4 - Pix\n");
+        printf("Opcao: ");
 
-    printf("\nEscolha a forma de pagamento:\n");
-    printf("1 - Dinheiro\n");
-    printf("2 - Cartao de Credito\n");
-    printf("3 - Cartao de Debito\n");
-    printf("4 - Pix\n");
-    printf("Opcao: ");
+        scanf("%d", &opcao);
+        limpar_buffer();
 
-    scanf("%d", &opcao);
-    limpar_buffer();
+        switch (opcao) {
+            case 1:
+            return strdup("Dinheiro");
 
-    switch (opcao) {
-        case 1:
-           metodo_pagamento = realloc(metodo_pagamento,strlen("Dinheiro")+1);
-            strcpy(metodo_pagamento, "Dinheiro");
+            
+            case 2:
+                return strdup("Crédito");
 
-            break;
-        case 2:
-            metodo_pagamento = realloc(metodo_pagamento,strlen("credito")+1); 
-            strcpy(metodo_pagamento, "Credito");
-            break;
-        case 3:
-             metodo_pagamento = realloc(metodo_pagamento,strlen("Debito")+1);
-            strcpy(metodo_pagamento, "Debito");
-            break;
-        case 4:
-             metodo_pagamento = realloc(metodo_pagamento,strlen("Pix")+1);
-            strcpy(metodo_pagamento, "Pix");
-            break;
-        default:
-            printf("Opcao invalida. Definindo como 'Nao especificado'.\n");
-            printf("\nTente novamente.\n");
-            forma_pagamento();
-            break;
+            case 3:
+                return strdup("Debito");
+            
+            case 4:
+                return strdup( "Pix");
+                
+            default:
+                printf("Opcao invalida. Definindo como 'Nao especificado'.\n");
+                printf("\nTente novamente.\n");
+                
+                continue;
+        }
     }
-   
 
-    return metodo_pagamento;
+    
 }
 
 
@@ -273,7 +269,7 @@ void buscar_veiculo(Veiculo *lista, char *placa) {
                  printf("\nForma de Pagamento: %s", lista->forma_pagamento);
                  printf("\nValor pago: %s ", lista->valor_pago);
                  printf("\nTipo de Vaga: %s", lista->tipo_vaga);
-                 printf("\nProprietario: %s", lista->condutor->nome);// descobri que podemos acessar os campos da estrutura Usuario atraves do ponteiro condutor que esta dentro da estrutura veiculo//
+                 printf("\nProprietario: %s", lista->condutor->nome);
                  printf("\n-------------------------------\n");
                  
 
@@ -285,7 +281,7 @@ void buscar_veiculo(Veiculo *lista, char *placa) {
          } 
 
                  printf("\nVeiculo nao encontrado.\n"); 
-    }
+}
 
 
 Veiculo* remover_veiculo(Veiculo *lista, char *placa) {
@@ -336,10 +332,10 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
     
          
 
-        char *cpf = malloc(12);
+       
 
         printf("\nInsira o cpf do condutor: ");
-        cpf = ler_string();
+        char *cpf = ler_string();
 
         Usuario *dono = buscar_proprietario(lista1,cpf);
         
@@ -496,7 +492,7 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
 
             printf("\nVeiculo cadastrado com sucesso!\n");
             return lista;
-        }
+}
 
 void listar_veiculos(Veiculo *lista) {
 
@@ -539,7 +535,7 @@ void listar_veiculos(Veiculo *lista) {
 
 void dados_do_veiculo(Veiculo *v) {
 
-    FILE *file = fopen("Estacionamento.txt", "a");
+    FILE *file = fopen("Estacionamento.txt", "a+");
     if (!file) {
         printf("Erro ao abrir arquivo.\n");
         return;
@@ -822,7 +818,7 @@ void menu() {
 
 void dados_do_condutor(Usuario *proprietario) {
    
-    FILE *file = fopen("Cadastro_de_usuario.txt", "a"); 
+    FILE *file = fopen("Cadastro_de_usuario.txt", "a+"); 
     if (!file) {
         printf("Erro ao abrir arquivo.\n");
         return;
@@ -1013,20 +1009,4 @@ Veiculo *remover_veiculos_do_proprietario(Veiculo *lista, Usuario *proprietario)
 }
 
    
-/* Dificuldades existentes cawan
 
-pensar em como um estacionamento funciona na vida real
-umas da maxima difuculdades foi a data e hora que vem direto do sistema
-conseguir fazer a lista encadeada funcionar corretamente
-integrar duas listas encadeadas (veiculos e proprietarios)
-por que integrar duas listas encadeadas? porque um veiculo tem um proprietario e um proprietario pode ter varios veiculos
-gerenciar a memoria dinamica corretamente para evitar vazamentos
-tratar buffers
-gerenciar o codigo grande 
-trabalhar usando ponteiros para estruturas
-
-conforme for ajustado eu vou atualizando aqui
-
-
-
-*/
