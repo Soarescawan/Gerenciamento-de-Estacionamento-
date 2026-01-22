@@ -83,7 +83,7 @@ char *data_do_sistema();
 char *tempo_permanencia_sistema(); 
 
 //Seleciona a forma de pagamento//
-char *dados_de_pagamento();
+char *forma_pagamento();
 
 //inserir Veiculos na Lista encadeada//
 Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1);
@@ -140,7 +140,7 @@ int main() {
                 
 
                       
-                if (strcmp(confirma,"s") == 0 || strcmp(confirma, "S") == 0 || strcmp(confirma,"Sim") == 0 || strcmp(confirma ,"SIM") == 0 ) {
+                if (strcmp(confirma,"n") == 0 || strcmp(confirma, "N") == 0 || strcmp(confirma,"Nao") == 0 || strcmp(confirma ,"NAO") == 0 ) {
                     printf("\nRemocao cancelada.\n");
                      break;
 
@@ -187,9 +187,9 @@ int main() {
                      break;
 
                  }else{
-                     printf("\nRemovendo Proprietario: ");
+                     printf("\nRemovendo Proprietario: \n");
                         lista1 = remover_Proprietario(lista1, cpf);
-                    printf("--------- Proprietario Removido com sucesso ----------");
+                    printf("\n--------- Proprietario Removido com sucesso ----------\n");
                              break;
                         }
 
@@ -210,7 +210,7 @@ int main() {
 }
 
     
-char *dados_de_pagamento() {
+char *forma_pagamento() {
     char *metodo_pagamento = NULL;
     int opcao;
 
@@ -226,26 +226,26 @@ char *dados_de_pagamento() {
 
     switch (opcao) {
         case 1:
-           metodo_pagamento = malloc(9);
+           metodo_pagamento = realloc(metodo_pagamento,strlen("Dinheiro")+1);
             strcpy(metodo_pagamento, "Dinheiro");
 
             break;
         case 2:
-            metodo_pagamento = malloc(18);
+            metodo_pagamento = realloc(metodo_pagamento,strlen("credito")+1); 
             strcpy(metodo_pagamento, "Credito");
             break;
         case 3:
-            metodo_pagamento = malloc(16);
+             metodo_pagamento = realloc(metodo_pagamento,strlen("Debito")+1);
             strcpy(metodo_pagamento, "Debito");
             break;
         case 4:
-            metodo_pagamento = malloc(4);
+             metodo_pagamento = realloc(metodo_pagamento,strlen("Pix")+1);
             strcpy(metodo_pagamento, "Pix");
             break;
         default:
             printf("Opcao invalida. Definindo como 'Nao especificado'.\n");
             printf("\nTente novamente.\n");
-            dados_de_pagamento();
+            forma_pagamento();
             break;
     }
    
@@ -308,6 +308,7 @@ Veiculo* remover_veiculo(Veiculo *lista, char *placa) {
             free(atual->valor_pago);
             free(atual->tipo_vaga);
             free(atual->vaga_do_veiculo);
+            atual->condutor->veiculos_cadastrados--;//decrementa o numero de veiculos cadastrados do proprietario//
             free(atual);
             reescrever_arquivo_veiculos(lista);
 
@@ -354,18 +355,9 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
         novo->condutor = dono;
 
       
-       
-
-    
         free(cpf);
     
     
-
-
-
-
-
-
             do{
 
                 printf("\n Tipo de Vaga (Carro/Moto): ");
@@ -399,6 +391,7 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
 
         do{
             int vaga_valida ;
+
             printf("\nvaga do Veiculo: ");
             novo->vaga_do_veiculo = ler_string();
 
@@ -461,7 +454,9 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
             
             if(strcmp(novo->valor_pago, "R$50,00") == 0){
                     printf("\nDiaria selecionada.\n");
+
                         novo->tempo_permanencia = realloc(novo->tempo_permanencia,strlen( "Diaria")+1);
+
                         strcpy(novo->tempo_permanencia, "Diaria");
                         break;
 
@@ -482,7 +477,7 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
             
 
             printf("\nForma de Pagamento:\n ");
-            novo->forma_pagamento = dados_de_pagamento(novo->forma_pagamento);
+            novo->forma_pagamento = forma_pagamento();
         
         
         
@@ -555,6 +550,7 @@ void dados_do_veiculo(Veiculo *v) {
     fprintf(file, "Tempo Permanencia: %s\n", v->tempo_permanencia);
     fprintf(file, "Forma Pagamento: %s\n", v->forma_pagamento);
     fprintf(file, "Valor Pago: %s\n", v->valor_pago);
+    fprintf(file, "Proprietario: %s\n", v->condutor->nome);
 
    
    // fprintf(file, "CPF: %s\n", v->cpf);
@@ -568,6 +564,7 @@ char *tempo_permanencia_sistema() {
     
 
         int opcao;
+        char *valor = NULL;
 
     while(1){
         printf("\n====== Escolha o tempo de permanencia ======\n");
@@ -585,21 +582,26 @@ char *tempo_permanencia_sistema() {
         case 1:
         printf("\nDiaria selecionada.\n");
         printf("\nO valor da diaria e R$ 50,00\n");
+        valor = realloc(valor,strlen("R$50,00")+1);
+        strcpy(valor, "R$50,00");
     
-        return  "R$50,00";
+        return  valor;
             
            
         case 2:
         printf("\nMensal selecionada.\n");
         printf("\nO valor do mensal e R$ 150,00\n");
-            //strcpy(tempo, "R$150,00");
-            return "R$150,00";
+            valor = realloc(valor,strlen("R$150,00")+1);
+            strcpy(valor, "R$150,00");
+            return valor;
            
         case 3:
         printf("\nPernoite selecionada.\n");
         printf("\nO valor do pernoite e R$ 30,00\n");
-        // strcpy(tempo, "R$30,00");
-            return "R$30,00";
+        
+            valor = realloc(valor,strlen("R$30,00")+1);
+            strcpy(valor, "R$30,00");
+            return valor;
            
         
         default:
@@ -948,7 +950,7 @@ void somar_veiculos(Usuario *lista1, char *cpf) {
 }
 
    
-/*Dificuldades existentes cawan
+/* Dificuldades existentes cawan
 
 pensar em como um estacionamento funciona na vida real
 umas da maxima difuculdades foi a data e hora que vem direto do sistema
