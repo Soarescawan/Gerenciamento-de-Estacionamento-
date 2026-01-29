@@ -47,7 +47,7 @@ Usuario *buscar_proprietario(Usuario *lista1, char *cpf);
 
 Usuario *cadastrarCondutor(Usuario *lista);
 
-void somar_veiculos(Usuario *lista1, char *cpf);
+
 
 
 void buscar_veiculo(Veiculo *lista, char *placa);
@@ -98,17 +98,19 @@ Usuario *remover_Proprietario(Usuario *lista1,Veiculo **lista, char *cpf);
 
 void dados_do_condutor(Usuario *proprietario);
 
+void imprime_proprietario(Usuario *lista1);
+
 int main() {
 
-    setlocale(LC_ALL, "PORTUGUESE");
+setlocale(LC_ALL, "PORTUGUESE");
 
-    Veiculo *lista = NULL;
-    Usuario *lista1= NULL;
-    
-    int opcao;
-    char *placa = NULL;
-    char *confirma =NULL;
-    char *cpf= NULL;
+Veiculo *lista = NULL;
+Usuario *lista1= NULL;
+
+int opcao;
+char *placa = NULL;
+char *confirma =NULL;
+char *cpf= NULL;
 
     do {
         menu();
@@ -119,9 +121,9 @@ int main() {
         switch (opcao) {
 
             case 1:
-            printf(" \n===== Cadastrar Proprietários =====");
-            lista1 = cadastrarCondutor(lista1);
-                        break;
+                printf(" \n===== Cadastrar Proprietários =====");
+                lista1 = cadastrarCondutor(lista1);
+                break;
 
             case 2:
                 printf("\n ======  Cadastrar Veiculos ======");
@@ -130,87 +132,112 @@ int main() {
 
             case 3:
                 printf("\n===== Digite a placa  =====: ");
-                 placa = ler_string();
+                placa = ler_string();
 
-                
+
 
                 printf("\nVoce realmente deseja remover este veiculo da Placa %s ? (s/n): ",placa);
-                 confirma = ler_string();
-                
+                confirma = ler_string();
 
-                      
+
+
                 if (strcmp(confirma,"n") == 0 || strcmp(confirma, "N") == 0 || strcmp(confirma,"Nao") == 0 || strcmp(confirma ,"NAO") == 0 ) {
                     printf("\nRemocao cancelada.\n");
-                     break;
+                    free(confirma);
+                    free(placa);
+                    break;
 
-                 }else{
-                     printf("\nRemovendo veiculo com placa: %s", placa);
-                        lista = remover_veiculo(lista, placa);
-                        
-                             break;
-                        }
+                }else{
+                    printf("\nRemovendo veiculo com placa: %s", placa);
+                    lista = remover_veiculo(lista, placa);
+                    free(confirma);
+                    free(placa);
+
+                    break;
+                }
 
             case 4:
-            printf("\n ======= Veiculos no Estacionamento ======= \n");
+                printf("\n ======= Veiculos no Estacionamento ======= \n");
                 listar_veiculos(lista);
                 break;
 
             case 5:
                 printf("\n ===== Digite a Placa ===== \n");
-                     placa = ler_string();
-                         buscar_veiculo(lista, placa);
+                placa = ler_string();
+                buscar_veiculo(lista, placa);
+                free(placa);
                 break;
-            
-            
-        
-        case 6:
 
-            printf("\n ===== Digite o CPF ===== \n");
+
+
+            case 6:
+
+                printf("\n ===== Digite o CPF ===== \n");
                 cpf = ler_string();
-                buscar_proprietario(lista1,cpf);
 
-            break;
+                Usuario *encontrado = buscar_proprietario(lista1,cpf);
+
+                if(!encontrado){
+                    printf("\------ Proprietario não encontrado ------\n");
+                    free(cpf);
+                    break;
+
+                }else{
+
+                     printf("\------ Proprietario encontrado ------\n");
+                     imprime_proprietario(encontrado);
+                     free(cpf);
+
+                }
 
 
-        case 7:
-            printf("\n ===== Remover Proprietario ===== \n");
-            printf("\nInsira o CPF para a exclusao do cadastro do proprietario: \n");
-            cpf = ler_string();
-            
-            printf("\nOBS: Ao remover o proprietario, todos os veiculos associados a ele serao removidos tambem, poisnao pode haver veiculos sem dono.\n");
-                
+
+                break;
+
+
+            case 7:
+                printf("\n ===== Remover Proprietario ===== \n");
+                printf("\nInsira o CPF para a exclusao do cadastro do proprietario: \n");
+                cpf = ler_string();
+
+                printf("\nOBS: Ao remover o proprietario, todos os veiculos associados a ele serao removidos tambem, poisnao pode haver veiculos sem dono.\n");
+
 
                 printf("\nVoce realmente deseja remover este Proprietario? (s/n): ");
-                 confirma = ler_string();
+                confirma = ler_string();
 
-                      
+
                 if (strcmp(confirma, "N") == 0 || strcmp(confirma, "n") == 0 || strcmp(confirma, "Nao") == 0 || strcmp(confirma ,"NAO") == 0) {
                     printf("\nRemocao cancelada.\n");
-                     break;
+                    free(cpf);
+                    free(confirma);
+                    break;
 
-                 }else{
-                     printf("\nRemovendo Proprietario: \n");
-                        lista1 = remover_Proprietario(lista1,&lista, cpf);
-                        
+                }else{
+                    printf("\nRemovendo Proprietario: \n");
+                    lista1 = remover_Proprietario(lista1,&lista, cpf);
 
-                        printf("\n");
-                        printf("\n--------- Proprietario Removido com sucesso ----------\n");
-                             break;
-                        }
+
+                    printf("\n");
+                    printf("\n--------- Proprietario Removido com sucesso ----------\n");
+                    free(cpf);
+                    free(confirma);
+                    break;
+                }
 
 
             case 8:
-                  printf("\nEncerrando sistema...\n");
-                  break;
-    
-             default:
-                 printf("\nOpcao invalida!\n");
+                printf("\nEncerrando sistema...\n");
+                break;
 
-                    }
-    
-        
+                default:
+                printf("\nOpcao invalida!\n");
+
+         }
+
+
     } while (opcao != 8);
-    
+
     return 0;
 }
 
@@ -230,7 +257,7 @@ char *forma_pagamento() {
 
         switch (opcao) {
             case 1:
-            return strdup("Dinheiro");
+                return strdup("Dinheiro");
 
             
             case 2:
@@ -308,7 +335,13 @@ Veiculo* remover_veiculo(Veiculo *lista, char *placa) {
             free(atual->valor_pago);
             free(atual->tipo_vaga);
             free(atual->vaga_do_veiculo);
-            atual->condutor->veiculos_cadastrados--;
+
+            if(atual->condutor->veiculos_cadastrados > 0)
+             atual->condutor->veiculos_cadastrados--;
+            else
+                atual->condutor->veiculos_cadastrados = 0;
+
+
             free(atual);
             reescrever_arquivo_veiculos(lista);
 
@@ -327,13 +360,12 @@ Veiculo* remover_veiculo(Veiculo *lista, char *placa) {
 Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
 
 
-
     Veiculo *novo = malloc(sizeof(Veiculo));
 
-
-
-
-
+    if (!novo) {
+    printf("\nErro de memoria.\n");
+    return lista;
+}
 
     printf("\nInsira o cpf do condutor: ");
         char *cpf = ler_string();
@@ -351,8 +383,12 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
         return lista;
     }
 
+    printf("\n------ Proprietario Encontrado ------\n");
+    printf (" \nProprietario: %s\n",dono->nome);
+   
 
-    somar_veiculos(lista1,cpf);
+
+   
     novo->condutor = dono;
 
 
@@ -369,13 +405,13 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
 
         if((strcmp(novo->tipo_vaga,"Carro")== 0) || (strcmp(novo->tipo_vaga,"carro")==0)){
 
-             printf("Vaga de Carro selecionada.\n");
+             printf("\nVaga de Carro selecionada.\n");
 
         break;
         }
 
         else if((strcmp(novo->tipo_vaga,"Moto")== 0)|| (strcmp(novo->tipo_vaga,"moto")==0) || (strcmp(novo->tipo_vaga,"Motocicleta")==0) || (strcmp(novo->tipo_vaga,"motocicleta")==0) ){
-             printf("Vaga de Motocicleta selecionada.\n");
+             printf("\nVaga de Motocicleta selecionada.\n");
               break;
         }
 
@@ -384,7 +420,8 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
 
             printf("Tipo de Vaga invalido. Por favor, digite 'Carro' ou 'Moto'.\n");
             free(novo->tipo_vaga);
-            free(novo);
+            novo->tipo_vaga = NULL;
+            continue;
 
 
         }
@@ -398,7 +435,7 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
         printf("\n(Exemplo: A1, B2, C3 etc.)\n");
         novo->vaga_do_veiculo = ler_string();
 
-        if(strlen(novo->vaga_do_veiculo) == NULL){
+        if(novo->vaga_do_veiculo == NULL  || novo->vaga_do_veiculo[0] == '\0'){
             printf("\nErro ao ler vaga do veiculo.\n");
             free(novo->vaga_do_veiculo);
             
@@ -412,7 +449,7 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
             printf("\nErro:  Vaga do veiculo já esta em uso.\n");
             printf("\nPor favor, insira uma vaga diferente.\n");
             novo->vaga_do_veiculo = NULL;
-            vaga_valida = NULL;
+            
             continue;
         }else{
             printf("\nVaga do veiculo cadastrada com sucesso.\n");
@@ -427,14 +464,15 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
         printf("\nPlaca: ");
         novo->placa = ler_string();
 
-        if(strlen(novo->placa) < 7 || strlen(novo->placa) > 8 || novo->placa == NULL ){
+        if(novo->placa == NULL || strlen(novo->placa) < 7 || strlen(novo->placa) > 8 ){
              printf("\nErro: Placa deve conter entre 0 a 7 caracteres.\n");
-
-        if(novo->placa != NULL)
+             printf("\n Tente Novamente \n");
              free(novo->placa);
+             novo->placa = NULL;
+
         }
 
-    }while(strlen(novo->placa) < 7 || strlen(novo->placa) > 8 || novo->placa == NULL);
+    }while(novo->placa == NULL || strlen(novo->placa) < 7 || strlen(novo->placa) > 8 );
 
 
 
@@ -461,20 +499,20 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
         if(strcmp(novo->valor_pago, "R$50,00") == 0){
              printf("\nDiaria selecionada.\n");
 
-             novo->tempo_permanencia = realloc(novo->tempo_permanencia,strlen( "Diaria")+1);
+             novo->tempo_permanencia = malloc(strlen( "Diaria")+1);
 
              strcpy(novo->tempo_permanencia, "Diaria");
             break;
 
         }else if(strcmp(novo->valor_pago, "R$150,00") == 0){
             printf("\nMensal selecionada.\n");
-            novo->tempo_permanencia = realloc(novo->tempo_permanencia,strlen("Mensal")+1);
+            novo->tempo_permanencia = malloc(strlen("Mensal")+1);
             strcpy(novo->tempo_permanencia, "Mensal");
             break;
 
         }else if(strcmp(novo->valor_pago, "R$30,00") == 0){
             printf("\nPernoite selecionada.\n");
-            novo->tempo_permanencia =  realloc(novo->tempo_permanencia,strlen("Pernoite")+1);
+            novo->tempo_permanencia =  malloc(strlen("Pernoite")+1);
             strcpy(novo->tempo_permanencia, "Pernoite");
             break;
         }
@@ -494,7 +532,7 @@ Veiculo *inserir_veiculo(Veiculo *lista,Usuario *lista1) {
 
     novo->prox = lista;
     lista = novo;
-
+    dono->veiculos_cadastrados++;
     printf("\nVeiculo cadastrado com sucesso!\n");
     return lista;
 }
@@ -522,19 +560,9 @@ void listar_veiculos(Veiculo *lista) {
         printf("\nProprietario: %s", lista->condutor->nome);
         printf("\n-------------------------------\n");
         lista = lista->prox;
-       ;
+       
     }
 
-    while (lista != NULL) {
-    printf("\nNO: %p", (void*)lista);
-    printf("\nPROX: %p", (void*)lista->prox);
-
-    printf("\nPlaca: %s", lista->placa);
-    printf("\n--------------------------\n");
-
-    lista = lista->prox;
-     
-}
 
 }
 
@@ -589,7 +617,7 @@ char *tempo_permanencia_sistema() {
         case 1:
         printf("\nDiaria selecionada.\n");
         printf("\nO valor da diaria e R$ 50,00\n");
-        valor = realloc(valor,strlen("R$50,00")+1);
+        valor = malloc(strlen("R$50,00")+1);
         strcpy(valor, "R$50,00");
     
         return  valor;
@@ -598,7 +626,7 @@ char *tempo_permanencia_sistema() {
         case 2:
         printf("\nMensal selecionada.\n");
         printf("\nO valor do mensal e R$ 150,00\n");
-            valor = realloc(valor,strlen("R$150,00")+1);
+            valor = malloc(strlen("R$150,00")+1);
             strcpy(valor, "R$150,00");
             return valor;
            
@@ -606,7 +634,7 @@ char *tempo_permanencia_sistema() {
         printf("\nPernoite selecionada.\n");
         printf("\nO valor do pernoite e R$ 30,00\n");
         
-            valor = realloc(valor,strlen("R$30,00")+1);
+            valor = malloc(strlen("R$30,00")+1);
             strcpy(valor, "R$30,00");
             return valor;
            
@@ -661,7 +689,8 @@ char *hora_atual_sistema() {
 
     time(&agora);
     tempo = localtime(&agora);
-    sprintf(hora, "%02d:%02d", tempo->tm_hour, tempo->tm_min);
+    snprintf(hora, 20, "%02d:%02d", tempo->tm_hour, tempo->tm_min);
+
 
     return hora;
 }
@@ -716,19 +745,30 @@ void reescrever_arquivo_veiculos(Veiculo *lista) {
 
 char *ler_string() {
     char memoria[256];
-    
-    if (fgets(memoria, sizeof(memoria), stdin) == NULL){
-        return NULL;}
-        
-        
-        memoria[strcspn(memoria, "\n")] = '\0'; 
-        char *palavra = malloc(strlen(memoria) + 1);
-    
-    if (palavra == NULL)
-        return NULL;
 
-    strcpy(palavra, memoria);
-    return palavra;
+    while(1){
+        if(fgets(memoria, sizeof(memoria), stdin) == NULL){
+            return NULL;
+        }
+
+
+        if (memoria[0]  == '\n' ){
+
+            printf("\nErro o campo nao pode ser vazio\n");
+            printf("\nInsira novamente o campo recomendado:\n");
+
+            continue; }
+            
+            
+            memoria[strcspn(memoria, "\n")] = '\0'; 
+            char *palavra = malloc(strlen(memoria) + 1);
+        
+        if (palavra == NULL)
+            return NULL;
+
+        strcpy(palavra, memoria);
+        return palavra;
+    }
 
 }
 
@@ -745,10 +785,25 @@ Usuario *cadastrarCondutor(Usuario *lista1){
      novo->veiculos_cadastrados = 0;
         int contador =0;
 
-     int chances =3;
-     printf("\nInsira o nome do Condutor:  ");
-     novo->nome = ler_string();
-    
+     int chances = 3;
+
+     do{
+      printf("\nInsira o nome do Condutor:  ");
+      novo->nome = ler_string();
+
+      if(novo->nome == NULL){
+        free(novo->nome);
+        printf("\nEste campo n pode ser vazio\n");
+        continue;
+      }else{
+        break;
+      }
+
+     }while(1);
+
+
+
+
         do {
         printf("\nInsira o CPF do Proprietario: ");
         novo->cpf = ler_string();
@@ -853,30 +908,17 @@ Usuario *buscar_proprietario(Usuario *lista1, char *cpf) {
  
 
 
-        while (lista1 != NULL) { 
-            if (strcmp(lista1->cpf, cpf) == 0 && lista1 != NULL) { 
-                 printf("\n--- Proprietario Encontrado ---\n"); 
-                     printf( "---- Dados do Condutor ----\n");
-                     printf( "Nome do Condutor: %s\n", lista1->nome);
-                     printf( "Telefone: %s\n", lista1->telefone);
-                     printf( "Email: %s\n", lista1->email);
-                     printf( "Endereço: %s\n", lista1->endereco);
-                     printf( "Cpf: %s\n", lista1->cpf);
-                     printf( "Veiculos Cadastrados: %d\n", lista1->veiculos_cadastrados);
+    while (lista1 != NULL) { 
+        if ( strcmp(lista1->cpf, cpf) == 0  ) {
 
-                     printf( "--------------------------\n");
-                    
-              
+          return lista1;
+        }
+
+         lista1 = lista1->prox1;
+    } 
 
 
-                 return lista1;
-                }
-                 
-                 lista1 = lista1->prox1;
-         } 
-
-                 printf("\nProprietario nao encontrado.\n"); 
-                 return NULL;
+    return NULL;
 }
 
 
@@ -965,15 +1007,8 @@ int verificar_cpf(Usuario *lista1, char *cpf) {
     return 0; 
 }
 
-void somar_veiculos(Usuario *lista1, char *cpf) {
-    while (lista1 != NULL) {
-        if (strcmp(lista1->cpf, cpf) == 0) {
-            lista1->veiculos_cadastrados++;
-            return;
-        }
-        lista1 = lista1->prox1;
-    }
-}
+
+
 Veiculo *remover_veiculos_do_proprietario(Veiculo *lista, Usuario *proprietario) {
     Veiculo *atual = lista;
     Veiculo *anterior = NULL;
@@ -1009,7 +1044,7 @@ Veiculo *remover_veiculos_do_proprietario(Veiculo *lista, Usuario *proprietario)
            
             free(remover);
 
-           // reescrever_arquivo_veiculos(atual);
+           
         } 
         else {
             anterior = atual;
@@ -1018,6 +1053,28 @@ Veiculo *remover_veiculos_do_proprietario(Veiculo *lista, Usuario *proprietario)
     }
 
     return lista;
+}
+
+
+void imprime_proprietario(Usuario *lista1){
+
+    if(lista1!= NULL){
+
+    printf( "---- Dados do Condutor ----\n");
+    printf( "Nome do Condutor: %s\n", lista1->nome);
+    printf( "Telefone: %s\n", lista1->telefone);
+    printf( "Email: %s\n", lista1->email);
+    printf( "Endereço: %s\n", lista1->endereco);
+    printf( "Cpf: %s\n", lista1->cpf);
+    printf( "Veiculos Cadastrados: %d\n", lista1->veiculos_cadastrados);
+
+    printf( "--------------------------\n");}
+   
+    
+
+
+
+
 }
 
    
